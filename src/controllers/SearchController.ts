@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 
 
 //TODO Work in the PropertyController
-export class PropertyController {
+export class SearchController {
     static createProperty = async (req: Request, res: Response) => {
         try {
 

@@ -1,30 +1,43 @@
 import { Router } from "express";
-import { body, param } from "express-validator";
+import { body } from "express-validator";
 import { PropertyController } from "../controllers/PropertyController";
 import { handleInputErrors } from "../middleware/validation";
-import { checkExistingUser } from "../middleware/auth";
+import { requireAuth, requireAdmin, requireRoles, optionalAuth } from "../middleware/auth";
+
 
 const router = Router();
 
-// Client Auth Routes
+//! Property Routes
+//TODO: Implement property fundamental routes
 
-/* Create Account */
+/** Get all Properties */
+
+/** Get a Property by it's ID (ObjectId) */
+
+/** Create Property */
 router.post("/create", 
-    body("name")
-        .notEmpty().withMessage("El Nombre es obligatorio"),
-    body("businessName")
-        .notEmpty().withMessage("El Nombre de la Empresa es obligatorio"),
-    body("phone")
-        .matches(/^(\+56\s?9\d{8}|9\d{8})$/)
-        .trim()
-        .withMessage("Formato de teléfono inválido. Example: +56912345678 or 912345678"),
-
-    body("address")
-        .notEmpty().withMessage("La Dirección es obligatoria"),
+    body("title").notEmpty().withMessage("El título es obligatorio"),
+    body("description").notEmpty().withMessage("La descripción es obligatoria"),
+    body("type").isIn(["house", "apartment", "land", "commercial", "office"]).withMessage("Tipo de propiedad inválido"),
+    body("price").notEmpty().withMessage("El precio es obligatorio"),
+    body("address").notEmpty().withMessage("La dirección es obligatoria"),
+    body("status").optional().isIn(["available", "sold", "pending"]).withMessage("Estado de propiedad inválido"),
+    body("dorms").isInt({ min: 0 }).withMessage("Número de dormitorios inválido"),
+    body("bathrooms").isInt({ min: 0 }).withMessage("Número de baños inválido"),
+    body("parkingSpaces").optional().isInt({ min: 0 }).withMessage("Número de espacios de estacionamiento inválido"),
+    body("area").isFloat({ min: 0 }).withMessage("Área inválida"), 
+    body("region").notEmpty().withMessage("La región es obligatoria"),
+    body("cityArea").notEmpty().withMessage("El área de la ciudad es obligatoria"),
+    body("condo").optional().isBoolean().withMessage("Especifique si es condominio o no"),
+    requireAuth, 
+    requireAdmin, 
     handleInputErrors,
-    checkExistingUser,
     PropertyController.createProperty
 )
+
+/** Edit Property */
+
+/** Delete Property */
 
 
 export default router

@@ -1,129 +1,221 @@
+// middleware/auth.ts
 import { Request, Response, NextFunction } from "express";
-import jwt, { decode } from "jsonwebtoken";
-import User, { UserInterface } from "../models/User";
+import { getAuth, clerkClient } from "@clerk/express";
 
+// Extend Request interface to include auth
 declare global {
-    namespace Express {
-        interface Request {
-            user?: UserInterface;
-        }
-    }
+	namespace Express {
+		interface Request {
+			auth?: {
+				userId: string;
+				sessionId: string;
+				orgId?: string;
+				orgRole?: string;
+				orgSlug?: string;
+			};
+			user?: {
+				id: string;
+				emailAddress: string;
+				firstName: string;
+				lastName: string;
+				role: string;
+				publicMetadata: any;
+				privateMetadata: any;
+			};
+		}
+	}
 }
 
-// Validates for auth token
-export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const authHeader = req.headers.authorization;
-        //console.log(authHeader);
+/**
+ * Middleware to require authentication
+ * Validates JWT token and attaches user info to request
+ */
+export const requireAuth = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const auth = getAuth(req);
 
-        // Validar existencia del header
-        if(!authHeader) {
-            res.status(401).json({ message: "No autorizado o Token no proporcionado" });
-            return
-        }
+		if (!auth?.userId) {
+			res.status(401).json({
+				error: "Unauthorized",
+				message: "Valid authentication token required",
+			});
+            return;
+		}
 
-        const token = authHeader.split(" ")[1];
+		// Get user details from Clerk
+		const user = await clerkClient.users.getUser(auth.userId);
 
-        // Intentar decodificar el token con ambas claves
-        let decoded;
-        try {
-            decoded = jwt.verify(token, process.env.ADMIN_SECRET!);
-        } catch {
-            try {
-                decoded = jwt.verify(token, process.env.JWT_SECRET!);
-            } catch {
-                res.status(401).json({ message: "Token inválido" });
-                return
-            }
-        }
+		if (!user) {
+			res.status(401).json({
+				error: "Unauthorized",
+				message: "User not found",
+			});
+            return;
+		}
 
-        // Verificar si el token tiene el formato esperado
-        if (typeof decoded !== "object" || !decoded.id) {
-            res.status(401).json({ message: "Token inválido" });
-            return
-        }
+		// Attach auth and user info to request
+		req.auth = auth;
+		req.user = {
+			id: user.id,
+			emailAddress: user.emailAddresses[0]?.emailAddress || "",
+			firstName: user.firstName || "",
+			lastName: user.lastName || "",
+			role: (user.publicMetadata as any)?.role || "user",
+			publicMetadata: user.publicMetadata,
+			privateMetadata: user.privateMetadata,
+		};
 
-        // Buscar el usuario por el ID
-        const user = await User.findById(decoded.id).select(
-            "_id name businessName rut businessRut email phone address admin region city province reference postalCode country"
-        );
-
-        if(!user) {
-            res.status(404).json({ message: "Usuario no encontrado" });
-            return
-        }
-
-        // Agregar usuario a la petición
-        req.user = user;
-
-        next();
-    } catch (error) {
-        res.status(500).json({ message: "Error interno del servidor" });
-    }
-}
-
-// Validates for AdminToken
-export const authorizeAdmin = (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || !req.user.role || req.user.role !== "admin") {
-        res.status(403).json({ message: "Acceso denegado. Se requieren permisos de administrador." });
-        return
-    }
-    next();
+		next();
+	} catch (error) {
+		console.error("Auth middleware error:", error);
+		res.status(401).json({
+			error: "Unauthorized",
+			message: "Invalid or expired token",
+		});
+        return;
+	}
 };
 
-// Validates for an already existing users when registering a new one
-export const checkExistingUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { email } = req.body;
+/**
+ * Middleware to require admin role
+ * Must be used after requireAuth
+ */
+export const requireAdmin = (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	if (!req.user) {
+		res.status(401).json({
+			error: "Unauthorized",
+			message: "Authentication required",
+		});
+        return;
+	}
 
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            res.status(409).json({ message: "El Usuario ya está Registrado" });
-            return
-        }
+	if (req.user.role !== "admin") {
+		res.status(403).json({
+			error: "Forbidden",
+			message: "Admin access required",
+		});
+        return;
+	}
 
-        next();
-    } catch (error) {
-        res.status(500).json({ message: "Error interno del servidor" });
-    }
+	next();
 };
 
-// Checks if the user exists
-export const checkUserStatus = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { tokenRecord } = req.body;
+/**
+ * Middleware to require specific roles
+ * Usage: requireRoles(['admin', 'moderator'])
+ */
+export const requireRoles = (allowedRoles: string[]) => {
+	return (req: Request, res: Response, next: NextFunction) => {
+		if (!req.user) {
+			res.status(401).json({
+				error: "Unauthorized",
+				message: "Authentication required",
+			});
+            return;
+		}
 
-        const user = await User.findById(tokenRecord.userId);
+		if (!allowedRoles.includes(req.user.role)) {
+			res.status(403).json({
+				error: "Forbidden",
+				message: `Required roles: ${allowedRoles.join(", ")}`,
+			});
+            return;
+		}
 
-        if (!user) {
-            res.status(404).json({ message: "Usuario no encontrado" });
-            return
-        }
-
-        req.body.user = user; // Guardamos el usuario en la request
-
-        next();
-    } catch (error) {
-        res.status(500).json({ message: "Error interno del servidor" });
-    }
+		next();
+	};
 };
 
-// Validates if the user exists based on the id
-export const userIdExists = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { id } = req.params;
+/**
+ * Middleware for optional authentication
+ * Doesn't fail if no token, but populates user if valid token exists
+ */
+export const optionalAuth = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const auth = getAuth(req);
 
-        const user = await User.findById(id);
-        if(!user) {
-            const error = new Error("Usuario no Encontrado");
-            res.status(404).json({ message: error.message });
-            return
-        }
+		if (auth?.userId) {
+			const user = await clerkClient.users.getUser(auth.userId);
 
-        req.body.user = user;
-        next();
-    } catch (error) {
-        res.status(500).json({ message: "Error Interno del Servidor"})
-        return
-    }
-}
+			if (user) {
+				req.auth = auth;
+				req.user = {
+					id: user.id,
+					emailAddress: user.emailAddresses[0]?.emailAddress || "",
+					firstName: user.firstName || "",
+					lastName: user.lastName || "",
+					role: (user.publicMetadata as any)?.role || "user",
+					publicMetadata: user.publicMetadata,
+					privateMetadata: user.privateMetadata,
+				};
+			}
+		}
+
+		next();
+	} catch (error) {
+		// Continue without auth if token is invalid
+		next();
+	}
+};
+
+/**
+ * Middleware to check if user owns resource or is admin
+ * Usage: requireOwnershipOrAdmin('userId') - checks if req.params.userId matches authenticated user
+ */
+export const requireOwnershipOrAdmin = (ownerIdParam: string = "userId") => {
+	return (req: Request, res: Response, next: NextFunction) => {
+		if (!req.user) {
+			res.status(401).json({
+				error: "Unauthorized",
+				message: "Authentication required",
+			});
+            return;
+		}
+
+		const resourceOwnerId =
+			req.params[ownerIdParam] || req.body[ownerIdParam];
+		const isOwner = req.user.id === resourceOwnerId;
+		const isAdmin = req.user.role === "admin";
+
+		if (!isOwner && !isAdmin) {
+			res.status(403).json({
+				error: "Forbidden",
+				message:
+					"You can only access your own resources unless you are an admin"
+			});
+            return;
+		}
+
+		next();
+	};
+};
+
+/**
+ * Utility function to set user role in Clerk
+ * Call this when you want to promote a user to admin
+ */
+export const setUserRole = async (userId: string, role: string) => {
+	try {
+		await clerkClient.users.updateUserMetadata(userId, {
+			publicMetadata: {
+				role: role,
+			},
+		});
+		return true;
+	} catch (error) {
+		console.error("Error setting user role:", error);
+		return false;
+	}
+};
