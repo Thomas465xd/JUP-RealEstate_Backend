@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { decode } from "jsonwebtoken";
 import User, { UserInterface } from "../models/User";
-import Token from "../models/Token";
 
 declare global {
     namespace Express {
@@ -65,7 +64,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
 // Validates for AdminToken
 export const authorizeAdmin = (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || !req.user.admin) {
+    if (!req.user || !req.user.role || req.user.role !== "admin") {
         res.status(403).json({ message: "Acceso denegado. Se requieren permisos de administrador." });
         return
     }
@@ -107,27 +106,6 @@ export const checkUserStatus = async (req: Request, res: Response, next: NextFun
     } catch (error) {
         res.status(500).json({ message: "Error interno del servidor" });
     }
-};
-
-// Validates the token
-export const validateToken = (type: "admin_confirmation" | "password_reset") => {
-    return async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { token } = req.params;
-
-            const tokenRecord = await Token.findOne({ token, type });
-
-            if (!tokenRecord) {
-                res.status(404).json({ message: "Token no encontrado o inválido" });
-                return
-            }
-
-            req.body.tokenRecord = tokenRecord; // Guardamos el token en la request
-            next();
-        } catch (error) {
-            res.status(500).json({ message: "Error interno del servidor" });
-        }
-    };
 };
 
 // Validates if the user exists based on the id
