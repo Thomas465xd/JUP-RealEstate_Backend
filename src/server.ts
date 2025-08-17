@@ -5,7 +5,6 @@ import { connectDB } from './config/db';
 import { corsConfig } from './config/cors';
 import { clerkMiddleware } from '@clerk/express';
 import morgan from 'morgan';
-import authRouter from './routes/authRouter';
 import propertyRouter from './routes/propertyRouter';
 import searchRouter from './routes/searchRouter';
 
@@ -31,7 +30,6 @@ app.use(morgan("dev"));
 app.use(express.json())
 
 // Routes
-app.use("/api/auth", authRouter);
 app.use("/api/properties", propertyRouter);
 app.use("/api/search", searchRouter);
 

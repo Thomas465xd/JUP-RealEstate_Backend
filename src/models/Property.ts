@@ -34,6 +34,9 @@ export interface PropertyInterface extends Document {
     region: string
     cityArea: string
     condo: boolean
+
+    // Image attributes
+    imagesUrls: string[]
 }
 
 const propertySchema : Schema = new Schema({
@@ -102,6 +105,19 @@ const propertySchema : Schema = new Schema({
         type: Boolean, 
         default: false,
         trim: true
+    }, 
+
+    // Image Attributes
+    imageUrls: {
+        type: [String], // array of strings
+        required: true,
+        trim: true,
+        validate: {
+            validator: function(arr: string[]) {
+                return arr.length >= 4; // minimum 4 item
+            },
+            message: 'At least 4 images are required.'
+        }
     }
 }, {timestamps: true})
 

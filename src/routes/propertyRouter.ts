@@ -11,9 +11,21 @@ const router = Router();
 //TODO: Implement property fundamental routes
 
 /** Get all Properties */
-router.get("/", )
+router.get("/", 
+    optionalAuth,
+    handleInputErrors, 
+    PropertyController.getProperties
+)
 
 /** Get a Property by it's ID (ObjectId) */
+router.get("/:id", 
+    param("id")
+        .isMongoId().withMessage("ID de propiedad Inválido")
+        .notEmpty().withMessage("El ID de la propiedad es obligatorio"),
+    optionalAuth, 
+    handleInputErrors,
+    PropertyController.getPropertyById
+)
 
 /** Create Property */
 router.post("/create", 
@@ -47,6 +59,10 @@ router.post("/create",
     ]).withMessage("Área inválida"),
     body("cityArea").notEmpty().withMessage("El área de la ciudad es obligatoria"),
     body("condo").optional().isBoolean().withMessage("Especifique si es condominio o no"),
+    body("imageUrls")
+        .isArray({ min: 4 }).withMessage("Debe enviar al menos 4 imágenes")
+        .custom((arr) => arr.every(url => typeof url === "string" && url.startsWith("http")))
+        .withMessage("Todos los elementos deben ser URLs válidas"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     handleInputErrors,
