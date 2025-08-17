@@ -32,7 +32,7 @@ app.use(express.json())
 
 // Routes
 app.use("/api/auth", authRouter);
-app.use("/api/property", propertyRouter);
+app.use("/api/properties", propertyRouter);
 app.use("/api/search", searchRouter);
 
 export default app
