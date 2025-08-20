@@ -27,6 +27,9 @@ router.get("/search/:slug",
 
 //? Get a single category by it's id
 router.get("/:id", 
+    param("id")
+        .isMongoId().withMessage("ID de propiedad Inválido")
+        .notEmpty().withMessage("El ID de la categoría es obligatorio"),
     handleInputErrors, 
     FeaturedController.getCategoryById
 )
@@ -44,10 +47,17 @@ router.post("/",
 
 //? Edit category by it's id
 router.patch("/:id", 
+    param("id")
+        .isMongoId().withMessage("ID de la categoría es Inválido")
+        .notEmpty().withMessage("El ID de la categoría es obligatorio"),
     body("categoryName")
         .optional()
         .notEmpty()
         .withMessage("El Nombre de la Categoría es Obligatorio"),
+    body("isActive") 
+        .optional()
+        .isBoolean()
+        .withMessage("Especifique si la categoría esta activa o no"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     handleInputErrors, 
@@ -56,6 +66,9 @@ router.patch("/:id",
 
 //? Delete Category
 router.delete("/:id", 
+    param("id")
+        .isMongoId().withMessage("ID de propiedad Inválido")
+        .notEmpty().withMessage("El ID de la categoría es obligatorio"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     handleInputErrors, 
@@ -70,20 +83,35 @@ router.get("/properties",
 
 //^ Get properties for a given category
 router.get("/properties/:id", 
+    param("id")
+        .isMongoId().withMessage("ID de propiedad Inválido")
+        .notEmpty().withMessage("El ID de la categoría es obligatorio"),
     handleInputErrors, 
     FeaturedController.getPropertiesByCategory
 )
 
-//^ Asign Property to category
-router.patch("/properties/asign/:id", 
+//^ Assign Property to category
+router.patch("/properties/:id", 
+    param("id")
+        .isMongoId().withMessage("ID de categoría Inválido")
+        .notEmpty().withMessage("El ID de la categoría es obligatorio"),
+    body("propertyId")
+        .notEmpty().withMessage("El ID de la propiedad es obligatorio")
+        .isMongoId().withMessage("ID de propiedad Inválido"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     handleInputErrors, 
-    FeaturedController.asignProperty
+    FeaturedController.assignProperty
 )
 
-//^ Deasign Property to category 
-router.delete("/properties/remove/:id", 
+//^ Deasign Property from category 
+router.delete("/properties/:id",
+    param("id")
+        .isMongoId().withMessage("ID de propiedad Inválido")
+        .notEmpty().withMessage("El ID de la categoría es obligatorio"),
+    body("propertyId")
+        .notEmpty().withMessage("El ID de la propiedad es obligatorio")
+        .isMongoId().withMessage("ID de propiedad Inválido"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     handleInputErrors, 
@@ -91,7 +119,10 @@ router.delete("/properties/remove/:id",
 )
 
 //^ Asign Multiple properties to single category
-router.patch("/properties/properties/bulk", 
+router.patch("/properties/properties/:id/bulk", 
+    param("id")
+        .isMongoId().withMessage("ID de propiedad Inválido")
+        .notEmpty().withMessage("El ID de la categoría es obligatorio"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     handleInputErrors, 

@@ -5,7 +5,7 @@ import { FeaturedInterface } from "../models/Featured";
 
 //TODO Work in the FeaturedController
 export class FeaturedController {
-    //? Get all categories
+    //? Get all categories ✅
     static getCategories = async (req: Request, res: Response) => {
         try {
             // Get the page and perPage query parameters (default values if not provided)
@@ -36,7 +36,7 @@ export class FeaturedController {
         }
     }
 
-    //? Get categories by slug pattern
+    //? Get categories by slug pattern ✅
     static getCategoryByName = async (req: Request, res: Response) => {
         try {
             const { slug } = req.params;
@@ -66,7 +66,7 @@ export class FeaturedController {
         }
     }
 
-    //? Get Category by it's id 
+    //? Get Category by it's id ✅
     static getCategoryById = async (req: Request, res: Response) => {
         try {
             // Destructure categoryName from query params
@@ -89,7 +89,7 @@ export class FeaturedController {
         }
     }
 
-    //? Create a new category
+    //? Create a new category ✅
     static createCategory = async (req: Request, res: Response) => {
         try {
             // Destructure the category name from the request body
@@ -136,20 +136,75 @@ export class FeaturedController {
     //? Edit category
     static editCategory = async (req: Request, res: Response) => {
         try {
+            // Destructure the category id from the query params
+            const { id } = req.params; 
 
-            res.status(201).json({ message: "Propiedad creada Exitosamente" })
+            // Destructure the categoryName or isActive body params
+            const categoryData = {...req.body}; 
+
+            // If categoryName is being updated, generate new slug
+            if (categoryData.categoryName) {
+                // Generate slug from the new category name
+                const slug = categoryData.categoryName.toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+                    .replace(/\s+/g, '-') // Replace spaces with hyphens
+                    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+                    .replace(/(^-|-$)/g, ''); // Remove leading/trailing hyphens
+
+                // Update the category data with the new slug
+                categoryData.name = categoryData.categoryName; // Update name field
+                categoryData.slug = slug;
+                delete categoryData.categoryName; // Remove categoryName as it's not in schema
+            }
+
+            // Find and update the category
+            const updatedCategory = await Featured.findByIdAndUpdate(
+                id,
+                categoryData,
+                { new: true, runValidators: true } // new: true returns the updated doc
+            );
+
+            if (!updatedCategory) {
+                res.status(404).json({ 
+                    message: `Category with ID: ${id} not found` 
+                });
+
+                return
+            }
+
+            res.status(200).json({
+                message: "Categoría actualizada exitosamente",
+                category: {
+                    id: updatedCategory._id,
+                    name: updatedCategory.name,
+                    slug: updatedCategory.slug,
+                    isActive: updatedCategory.isActive
+                }
+            });
         } catch (error) {
             res.status(500).json({ message: "Internal Server Error" })
+            console.error("Error when editing Category: ", error )
         }
     }
 
     //? Delete Category
     static deleteCategory = async (req: Request, res: Response) => {
         try {
+            // Destructure id from url params
+            const { id } = req.params; 
 
-            res.status(201).json({ message: "Propiedad creada Exitosamente" })
+            // Find and delete the property
+            const deleteCategory = await Featured.findByIdAndDelete(id);
+            if (!deleteCategory) {
+                res.status(404).json({ message: `Categoría con ID: ${id} no Encontrada` });
+                return;
+            }
+
+            // Respond with a success message
+            res.status(200).json({ message: "Categoría eliminada Correctamente" }) // 204 code indicates successful deletion with no content
         } catch (error) {
             res.status(500).json({ message: "Internal Server Error" })
+            console.error("Error when deleting Category: ", error )
         }
     }
 
@@ -160,6 +215,7 @@ export class FeaturedController {
             res.status(201).json({ message: "Propiedad creada Exitosamente" })
         } catch (error) {
             res.status(500).json({ message: "Internal Server Error" })
+            console.error("Error when retrieving properties by Categories: ", error )
         }
     }
 
@@ -170,27 +226,30 @@ export class FeaturedController {
             res.status(201).json({ message: "Propiedad creada Exitosamente" })
         } catch (error) {
             res.status(500).json({ message: "Internal Server Error" })
+            console.error("Error when retrieving properties from Category: ", error )
         }
     }
 
 
     //^ Asign Property to category 
-    static asignProperty = async (req: Request, res: Response) => {
+    static assignProperty = async (req: Request, res: Response) => {
         try {
 
-            res.status(201).json({ message: "Propiedad creada Exitosamente" })
+            res.status(201).json({ message: `Propiedad asignada Exitosamente a ${{}}` })
         } catch (error) {
             res.status(500).json({ message: "Internal Server Error" })
+            console.error("Error when assigning property to Category: ", error )
         }
     }
 
-    //^ Deasign Property to category 
+    //^ Deasign Property from category 
     static removeProperty = async (req: Request, res: Response) => {
         try {
 
             res.status(201).json({ message: "Propiedad creada Exitosamente" })
         } catch (error) {
             res.status(500).json({ message: "Internal Server Error" })
+            console.error("Error when removing property from Category: ", error )
         }
     }
 
@@ -201,6 +260,7 @@ export class FeaturedController {
             res.status(201).json({ message: "Propiedad creada Exitosamente" })
         } catch (error) {
             res.status(500).json({ message: "Internal Server Error" })
+            console.error("Error when assigning multiple properties to Category: ", error )
         }
     }
 }
