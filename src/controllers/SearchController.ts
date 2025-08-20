@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import Property from "../models/Property";
 
 
-//TODO Work in the Advanced SearchController
+//! Advanced Search Controller
 
 type searchFilters = {
     status?: string,
