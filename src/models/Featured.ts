@@ -1,21 +1,39 @@
-import { Schema, model, Types, Document } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 
-interface FeaturedCategory {
-	name: string; // e.g. "Best Price", "Most Loved"
-	properties: Types.ObjectId[]; // References to Property documents
-}
-
-interface FeaturedInterface extends Document {
-	categories: FeaturedCategory[];
+export interface FeaturedInterface extends Document {
+    name: string;
+    slug: string;  // URL-friendly version: "best-prices"
+    properties: Types.ObjectId[];
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const FeaturedSchema = new Schema<FeaturedInterface>({
-	categories: [
-		{
-			name: { type: String, required: true, unique: true },
-			properties: [{ type: Schema.Types.ObjectId, ref: "Property" }],
-		},
-	],
+    name: { 
+        type: String, 
+        required: true,
+        unique: true,
+        trim: true
+    },
+    slug: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true
+    },
+    properties: [{ 
+        type: Schema.Types.ObjectId, 
+        ref: "Property" 
+    }],
+    isActive: {
+        type: Boolean,
+        default: true
+    }
+}, {
+    timestamps: true // Automatically adds createdAt and updatedAt attributes
 });
 
-export const Featured = model<FeaturedInterface>("Featured", FeaturedSchema);
+const Featured = model<FeaturedInterface>("Featured", FeaturedSchema);
+
+export default Featured
