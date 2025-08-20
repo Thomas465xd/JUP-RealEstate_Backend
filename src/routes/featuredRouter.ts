@@ -1,20 +1,18 @@
 import { Router } from "express";
 import { body } from "express-validator";
-import { SearchController } from "../controllers/SearchController";
+import { PropertyController } from "../controllers/PropertyController";
 import { handleInputErrors } from "../middleware/validation";
 import { requireAuth, requireAdmin, requireRoles, optionalAuth } from "../middleware/auth";
 
 
 const router = Router();
 
-//! Advanced Search Property Routes
-//TODO: Implement searching fundamental routes
+//! Featured Properties Routes
+//TODO: Implement featured properties fundamental routes
 
 
-router.get("/",
-    optionalAuth,
-    handleInputErrors,
-    SearchController.advancedSearch
+router.post("/", 
+
 )
 
 

@@ -32,7 +32,7 @@ router.post("/create",
     body("title").notEmpty().withMessage("El título es obligatorio"),
     body("description").notEmpty().withMessage("La descripción es obligatoria"),
     body("type").isIn(["house", "apartment", "land", "commercial", "office"]).withMessage("Tipo de propiedad inválido"),
-    body("price").notEmpty().withMessage("El precio es obligatorio"),
+    body("price").isInt({ min: 1}).withMessage("El precio tiene que ser un número"),
     body("address").notEmpty().withMessage("La dirección es obligatoria"),
     body("status").optional().isIn(["available", "sold", "pending"]).withMessage("Estado de propiedad inválido"),
     body("dorms").isInt({ min: 0 }).withMessage("Número de dormitorios inválido"),
@@ -88,7 +88,7 @@ router.patch("/edit/:id",
             "office"
         ]).withMessage("Tipo de propiedad inválido"),
     body("price")
-        .optional().notEmpty().withMessage("El precio es obligatorio"),
+        .optional().isInt({ min: 1}).withMessage("El precio es obligatorio"),
     body("address")
         .optional().notEmpty().withMessage("La dirección es obligatoria"),
     body("status")

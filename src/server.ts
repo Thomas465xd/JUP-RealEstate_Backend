@@ -7,6 +7,7 @@ import { clerkMiddleware } from '@clerk/express';
 import morgan from 'morgan';
 import propertyRouter from './routes/propertyRouter';
 import searchRouter from './routes/searchRouter';
+import featuredRouter from './routes/featuredRouter';
 
 dotenv.config();
 
@@ -32,5 +33,6 @@ app.use(express.json())
 // Routes
 app.use("/api/properties", propertyRouter);
 app.use("/api/search", searchRouter);
+app.use("/api/featured", featuredRouter)
 
 export default app

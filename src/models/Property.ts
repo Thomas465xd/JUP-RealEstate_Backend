@@ -24,7 +24,7 @@ export interface PropertyInterface extends Document {
     title: string
     description: string
     type: "house" | "apartment" | "land" | "commercial" | "office"
-    price: string
+    price: number // Price will be displayed in Chilean UF
     address: string
     status: "available" | "sold" | "pending"
     dorms: number
@@ -57,9 +57,10 @@ const propertySchema : Schema = new Schema({
         required: true 
     },
     price: { 
-        type: String, 
+        type: Number, 
+        default: 0,
         required: true,
-        trim: true
+        trim: true,
     },
     address: { 
         type: String, 
