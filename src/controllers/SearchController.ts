@@ -17,6 +17,7 @@ type searchFilters = {
 }
 
 export class SearchController {
+    //^ Advanced Search method with filters & sorting ✅
     static advancedSearch = async (req: Request, res: Response) => {
         try {
             /**

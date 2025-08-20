@@ -10,13 +10,13 @@ const router = Router();
 //! Featured Properties Routes | ADMIN
 //TODO: Implement featured properties fundamental routes
 
-//? Get all categories
+//? Get all categories ✅
 router.get("/", 
     handleInputErrors, 
     FeaturedController.getCategories
 )
 
-//? Get categories (or category) by Name
+//? Get categories (or category) by Name ✅
 router.get("/search/:slug", 
     param("slug")
         .notEmpty()
@@ -25,7 +25,7 @@ router.get("/search/:slug",
     FeaturedController.getCategoryByName
 )
 
-//? Get a single category by it's id
+//? Get a single category by it's id ✅
 router.get("/:id", 
     param("id")
         .isMongoId().withMessage("ID de propiedad Inválido")
@@ -34,7 +34,7 @@ router.get("/:id",
     FeaturedController.getCategoryById
 )
 
-//? Create a new category
+//? Create a new category ✅
 router.post("/", 
     body("categoryName")
         .notEmpty()
@@ -45,7 +45,7 @@ router.post("/",
     FeaturedController.createCategory
 )
 
-//? Edit category by it's id
+//? Edit category by it's id ✅
 router.patch("/:id", 
     param("id")
         .isMongoId().withMessage("ID de la categoría es Inválido")
@@ -64,7 +64,7 @@ router.patch("/:id",
     FeaturedController.editCategory
 )
 
-//? Delete Category
+//? Delete Category ✅
 router.delete("/:id", 
     param("id")
         .isMongoId().withMessage("ID de propiedad Inválido")
@@ -119,10 +119,21 @@ router.delete("/properties/:id",
 )
 
 //^ Asign Multiple properties to single category
-router.patch("/properties/properties/:id/bulk", 
+router.patch("/properties/:id/bulk", 
     param("id")
-        .isMongoId().withMessage("ID de propiedad Inválido")
-        .notEmpty().withMessage("El ID de la categoría es obligatorio"),
+        .notEmpty().withMessage("El ID de la categoría es obligatorio")
+        .isMongoId().withMessage("ID de categoría inválido"),
+    // Validate body.propertiesIds (must be array of valid MongoIds)
+    body("propertiesIds")
+        .notEmpty().withMessage("Los ID's de las propiedades no pueden ir vacíos")
+        .isArray().withMessage("propertiesIds debe ser un arreglo")
+        .custom((arr) => {
+            if (!arr.every((id: string) => /^[0-9a-fA-F]{24}$/.test(id))) {
+                throw new Error("Todos los IDs de propiedades deben ser ObjectIds válidos");
+            }
+
+            return true;
+        }),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     handleInputErrors, 

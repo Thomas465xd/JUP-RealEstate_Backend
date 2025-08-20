@@ -4,7 +4,7 @@ import Property from "../models/Property";
 
 //TODO Work in the PropertyController
 export class PropertyController {
-    //* Get all Registered Properties (accepts pagination and limits)
+    //* Get all Registered Properties (accepts pagination and limits) ✅
     static getProperties = async (req: Request, res: Response) => {
         try {
             // Get the page and perPage query parameters (default values if not provided)
@@ -34,7 +34,7 @@ export class PropertyController {
         }
     }
 
-    //* Get a Property by It's ID (ObjectId)
+    //* Get a Property by It's ID (ObjectId) ✅
     static getPropertyById = async (req: Request, res: Response) => {
         try {
             // Destructure the id from the params
@@ -56,7 +56,7 @@ export class PropertyController {
         }
     }
     
-    //^ Create a New Property | Required Admin Role
+    //^ Create a New Property | Required Admin Role ✅
     static createProperty = async (req: Request, res: Response) => {
         try {
             // Create a new Property Instance
@@ -79,7 +79,7 @@ export class PropertyController {
         }
     }
 
-    //? Edit a Property | Required Admin Role
+    //? Edit a Property | Required Admin Role ✅
     static editProperty = async (req: Request, res: Response) => {
         try {
             // Destructure id from params 
@@ -109,7 +109,7 @@ export class PropertyController {
         }
     }
 
-    //! Delete a Property | Required Admin Role
+    //! Delete a Property | Required Admin Role ✅
     static deleteProperty = async (req: Request, res: Response) => {
         try {
             // Destructure id from url params
