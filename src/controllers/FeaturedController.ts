@@ -134,7 +134,7 @@ export class FeaturedController {
         }
     }
 
-    //? Edit category
+    //? Edit category ✅
     static editCategory = async (req: Request, res: Response) => {
         try {
             // Destructure the category id from the query params
@@ -188,7 +188,7 @@ export class FeaturedController {
         }
     }
 
-    //? Delete Category
+    //? Delete Category ✅
     static deleteCategory = async (req: Request, res: Response) => {
         try {
             // Destructure id from url params
@@ -212,19 +212,68 @@ export class FeaturedController {
     //^ Get all Featured properties grouped by category
     static getPropertiesByCategories = async (req: Request, res: Response) => {
         try {
+            // Get the page and perPage query parameters (default values if not provided)
+            const page = parseInt(req.query.page as string) || 1;
+            const perPage = parseInt(req.query.perPage as string) || 10
 
-            res.status(201).json({ message: "Propiedad creada Exitosamente" })
+            // Calculate skip and limit for pagination
+            const skip = (page - 1) * perPage;
+            const limit = perPage;
+
+            // Get total number of properties
+            const totalCategories = await Featured.countDocuments()
+
+            // Get all registered Properties
+            const categoriesWithProperties = await Featured.find()
+                .skip(skip)
+                .limit(limit)
+                .sort({ createdAt: -1 })
+                .populate("properties")
+
+            // Calculate the total number of pages
+            const totalPages = Math.ceil(totalCategories / perPage)
+
+            // Return a successful server response
+            res.status(200).json({ totalCategories, totalPages, currentPage: page, perPage, categoriesWithProperties})
         } catch (error) {
             res.status(500).json({ message: "Internal Server Error" })
             console.error("Error when retrieving properties by Categories: ", error )
         }
     }
 
-    //^ Get properties for a given category
+    //^ Get properties for a given category by It's Id 
     static getPropertiesByCategory= async (req: Request, res: Response) => {
         try {
+            // Destructure category id from url params
+            const { id } = req.params; 
 
-            res.status(201).json({ message: "Propiedad creada Exitosamente" })
+            // Check wether the category exists or not
+            const category = await Featured.findById(id);
+
+            // if the category does not exist, throw error
+            if(!category) {
+                const error = new Error("La categoría no existe");
+                res.status(404).json({ message: error.message });
+                return;
+            }
+
+            // Try to populate with graceful degradation
+            let populateSuccess = true;
+            try {
+                await category.populate("properties");
+            } catch (populateError) {
+                console.warn("Populate failed, returning category without properties:", populateError);
+                populateSuccess = false;
+            }
+
+            const response = {
+                category,
+                ...(populateSuccess ? {} : { 
+                    warning: "Las propiedades no pudieron ser cargadas" 
+                })
+            };
+
+            res.status(200).json(response);
         } catch (error) {
             res.status(500).json({ message: "Internal Server Error" })
             console.error("Error when retrieving properties from Category: ", error )
@@ -232,7 +281,7 @@ export class FeaturedController {
     }
 
 
-    //^ Asign Property to category 
+    //^ Asign Property to category ✅
     static assignProperty = async (req: Request, res: Response) => {
         try {
             // Get the category id from url params
@@ -291,7 +340,7 @@ export class FeaturedController {
         }
     }
 
-    //^ Deasign Property from category 
+    //^ Deasign Property from category ✅
     static removeProperty = async (req: Request, res: Response) => {
         try {
             // Get the category id from url params
@@ -350,7 +399,7 @@ export class FeaturedController {
         }
     }
 
-    //^ Asign Multiple properties to single category
+    //^ Asign Multiple properties to single category ✅
     static asignMultipleProperties = async (req: Request, res: Response) => {
         try {
             // Get the category id from url params
