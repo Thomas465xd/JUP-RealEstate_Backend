@@ -14,39 +14,59 @@ const router = Router();
 router.get("/",
     param("status")
         .optional()
-        .isIn(["available", "sold", "pending"])
+        .isIn([
+            // "available", 
+            // "sold", 
+            // "pending", 
+            // Actual model values
+            "disponible", 
+            "vendida", 
+            "pendiente"
+        ])
         .withMessage("Estado de propiedad inválido"),
     param("type")
         .optional()
         .isIn([
-            "house", 
-            "apartment", 
-            "land", 
-            "commercial", 
-            "office"
-        ])
-        .withMessage("Tipo de propiedad inválido"),
+            // "house", 
+            // "apartment", 
+            // "land", 
+            // "commercial", 
+            // "office", 
+            // Actual model values
+            "casa", 
+            "departamento",
+            "parcela", 
+            "sitio", 
+            "oficina", 
+            "comercial"
+        ]).withMessage("Tipo de propiedad inválido"),
+    param("operation")
+        .optional()
+        .isIn([
+            "En Arriendo", 
+            "En Venta"
+        ]).withMessage("Tipo de Operación inválida"),
     param("region")    
-    .optional()
-    .isIn([
-        "Arica y Parinacota",
-        "Tarapacá",
-        "Antofagasta",
-        "Atacama",
-        "Coquimbo",
-        "Valparaíso",
-        "Metropolitana de Santiago",
-        "O'Higgins",
-        "Maule",
-        "Ñuble",
-        "Biobío",
-        "La Araucanía",
-        "Los Ríos",
-        "Los Lagos",
-        "Aysén",
-        "Magallanes"
-    ])
-    .withMessage("Área inválida"),
+        .optional()
+        .isIn([
+            "Arica y Parinacota",
+            "Tarapacá",
+            "Antofagasta",
+            "Atacama",
+            "Coquimbo",
+            "Valparaíso",
+            "Metropolitana de Santiago",
+            "O'Higgins",
+            "Maule",
+            "Ñuble",
+            "Biobío",
+            "La Araucanía",
+            "Los Ríos",
+            "Los Lagos",
+            "Aysén",
+            "Magallanes"
+        ])
+        .withMessage("Área inválida"),
     param("cityArea")
         .optional(), 
     param("condo")

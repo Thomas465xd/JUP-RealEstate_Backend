@@ -72,7 +72,7 @@ router.patch("/properties/:id/bulk",
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     handleInputErrors, 
-    FeaturedController.asignMultipleProperties
+    FeaturedController.assignMultipleProperties
 )
 
 //? Get all categories ✅

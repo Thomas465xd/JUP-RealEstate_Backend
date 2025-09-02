@@ -7,6 +7,7 @@ import Property from "../models/Property";
 type searchFilters = {
     status?: string,
     type?: string,
+    operation?: string,
     region?: string,
     cityArea?: string,
     condo?: boolean,
@@ -57,7 +58,7 @@ export class SearchController {
             const limit = perPage;
 
             // Identify filters
-            const { status, type, region, cityArea, minPrice, maxPrice, condo, dorms, bathrooms, parkingSpaces } = req.query
+            const { status, type, operation, region, cityArea, minPrice, maxPrice, condo, dorms, bathrooms, parkingSpaces } = req.query
 
             // Build the filters object based on the provided query parameters
             const filters : searchFilters = {};
@@ -65,6 +66,7 @@ export class SearchController {
             //* $gte = greater than or equal to & $lte = less than or equal to
             if(status) filters.status = status as string
             if(type) filters.type = (type as string)
+            if(operation) filters.operation = operation as string
             if(region) filters.region = region as string
             if(cityArea) filters.cityArea = cityArea as string
             if(condo) filters.condo = condo === "true" ? true : false

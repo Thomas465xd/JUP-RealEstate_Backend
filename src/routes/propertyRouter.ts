@@ -29,36 +29,74 @@ router.get("/:id",
 
 /** Create Property */
 router.post("/create", 
-    body("title").notEmpty().withMessage("El título es obligatorio"),
-    body("description").notEmpty().withMessage("La descripción es obligatoria"),
-    body("type").isIn(["house", "apartment", "land", "commercial", "office"]).withMessage("Tipo de propiedad inválido"),
-    body("price").isInt({ min: 1}).withMessage("El precio tiene que ser un número"),
-    body("address").notEmpty().withMessage("La dirección es obligatoria"),
-    body("status").optional().isIn(["available", "sold", "pending"]).withMessage("Estado de propiedad inválido"),
-    body("dorms").isInt({ min: 0 }).withMessage("Número de dormitorios inválido"),
-    body("bathrooms").isInt({ min: 0 }).withMessage("Número de baños inválido"),
-    body("parkingSpaces").optional().isInt({ min: 0 }).withMessage("Número de espacios de estacionamiento inválido"),
-    body("area").isFloat({ min: 0 }).withMessage("Área inválida"), 
-    body("region").isIn([
-    "Arica y Parinacota",
-    "Tarapacá",
-    "Antofagasta",
-    "Atacama",
-    "Coquimbo",
-    "Valparaíso",
-    "Metropolitana de Santiago",
-    "O'Higgins",
-    "Maule",
-    "Ñuble",
-    "Biobío",
-    "La Araucanía",
-    "Los Ríos",
-    "Los Lagos",
-    "Aysén",
-    "Magallanes"
-    ]).withMessage("Área inválida"),
-    body("cityArea").notEmpty().withMessage("El área de la ciudad es obligatoria"),
-    body("condo").optional().isBoolean().withMessage("Especifique si es condominio o no"),
+    body("title")
+        .notEmpty().withMessage("El título es obligatorio"),
+    body("description")
+        .notEmpty().withMessage("La descripción es obligatoria"),
+    body("operation")
+        .notEmpty().withMessage("La operación no puede ir vacía")
+        .isIn([
+            "En Arriendo", 
+            "En Venta"
+        ]).withMessage("Tipo de Operación inválida"),
+    body("type")
+        .isIn([
+            // "house", 
+            // "apartment", 
+            // "land", 
+            // "commercial", 
+            // "office", 
+            "casa", 
+            "departamento",
+            "parcela", 
+            "sitio", 
+            "oficina", 
+            "comercial"
+        ]).withMessage("Tipo de propiedad inválido"),
+    body("price")
+        .isInt({ min: 1 }).withMessage("El precio tiene que ser un número"),
+    body("address")
+        .notEmpty().withMessage("La dirección es obligatoria"),
+    body("status")
+        .optional().isIn([
+            // "available", 
+            // "sold", 
+            // "pending", 
+            "disponible", 
+            "vendida", 
+            "pendiente"
+        ]).withMessage("Estado de propiedad inválido"),
+    body("dorms")
+        .isInt({ min: 0 }).withMessage("Número de dormitorios inválido"),
+    body("bathrooms")
+        .isInt({ min: 0 }).withMessage("Número de baños inválido"),
+    body("parkingSpaces")
+        .optional().isInt({ min: 0 }).withMessage("Número de espacios de estacionamiento inválido"),
+    body("area")
+        .isFloat({ min: 0 }).withMessage("Área inválida"), 
+    body("region")
+        .isIn([
+            "Arica y Parinacota",
+            "Tarapacá",
+            "Antofagasta",
+            "Atacama",
+            "Coquimbo",
+            "Valparaíso",
+            "Metropolitana de Santiago",
+            "O'Higgins",
+            "Maule",
+            "Ñuble",
+            "Biobío",
+            "La Araucanía",
+            "Los Ríos",
+            "Los Lagos",
+            "Aysén",
+            "Magallanes"
+        ]).withMessage("Área inválida"),
+    body("cityArea")
+        .notEmpty().withMessage("El área de la ciudad es obligatoria"),
+    body("condo")
+        .optional().isBoolean().withMessage("Especifique si es condominio o no"),
     body("imageUrls")
         .isArray({ min: 4 }).withMessage("Debe enviar al menos 4 imágenes")
         .custom((arr) => arr.every(url => typeof url === "string" && url.startsWith("http")))
@@ -78,21 +116,38 @@ router.patch("/edit/:id",
         .optional().notEmpty().withMessage("El título es obligatorio"),
     body("description")
         .optional().notEmpty().withMessage("La descripción es obligatoria"),
-    body("type")
-        .optional()
+    body("type").optional().isIn([
+        // "house", 
+        // "apartment", 
+        // "land", 
+        // "commercial", 
+        // "office", 
+        "casa", 
+        "departamento",
+        "parcela", 
+        "sitio", 
+        "oficina", 
+        "comercial"
+    ]).withMessage("Tipo de propiedad inválido"),
+    body("operation")
+        .optional().notEmpty().withMessage("La operación no puede ir vacía")
         .isIn([
-            "house", 
-            "apartment", 
-            "land", 
-            "commercial", 
-            "office"
-        ]).withMessage("Tipo de propiedad inválido"),
+            "En Arriendo", 
+            "En Venta"
+        ]).withMessage("Tipo de Operación inválida"),
     body("price")
         .optional().isInt({ min: 1}).withMessage("El precio es obligatorio"),
     body("address")
         .optional().notEmpty().withMessage("La dirección es obligatoria"),
     body("status")
-        .optional().isIn(["available", "sold", "pending"]).withMessage("Estado de propiedad inválido"),
+        .optional().isIn([
+            // "available", 
+            // "sold", 
+            // "pending", 
+            "disponible", 
+            "vendida", 
+            "pendiente"
+        ]).withMessage("Estado de propiedad inválido"),
     body("dorms")
         .optional().isInt({ min: 0 }).withMessage("Número de dormitorios inválido"),
     body("bathrooms")
@@ -102,27 +157,29 @@ router.patch("/edit/:id",
     body("area")
         .optional().isFloat({ min: 0 }).withMessage("Área inválida"), 
     body("region")
-    .optional()
-    .isIn([
-        "Arica y Parinacota",
-        "Tarapacá",
-        "Antofagasta",
-        "Atacama",
-        "Coquimbo",
-        "Valparaíso",
-        "Metropolitana de Santiago",
-        "O'Higgins",
-        "Maule",
-        "Ñuble",
-        "Biobío",
-        "La Araucanía",
-        "Los Ríos",
-        "Los Lagos",
-        "Aysén",
-        "Magallanes"
-    ]).withMessage("Área inválida"),
-    body("cityArea").optional().notEmpty().withMessage("El área de la ciudad es obligatoria"),
-    body("condo").optional().isBoolean().withMessage("Especifique si es condominio o no"),
+        .optional()
+        .isIn([
+            "Arica y Parinacota",
+            "Tarapacá",
+            "Antofagasta",
+            "Atacama",
+            "Coquimbo",
+            "Valparaíso",
+            "Metropolitana de Santiago",
+            "O'Higgins",
+            "Maule",
+            "Ñuble",
+            "Biobío",
+            "La Araucanía",
+            "Los Ríos",
+            "Los Lagos",
+            "Aysén",
+            "Magallanes"
+        ]).withMessage("Área inválida"),
+    body("cityArea")
+        .optional().notEmpty().withMessage("El área de la ciudad es obligatoria"),
+    body("condo")
+        .optional().isBoolean().withMessage("Especifique si es condominio o no"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     handleInputErrors, 

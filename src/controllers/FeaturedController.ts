@@ -400,7 +400,7 @@ export class FeaturedController {
     }
 
     //^ Asign Multiple properties to single category ✅
-    static asignMultipleProperties = async (req: Request, res: Response) => {
+    static assignMultipleProperties = async (req: Request, res: Response) => {
         try {
             // Get the category id from url params
             const { id } = req.params; 

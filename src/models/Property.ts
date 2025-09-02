@@ -23,10 +23,13 @@ export interface PropertyInterface extends Document {
     // Base property info (required)
     title: string
     description: string
-    type: "house" | "apartment" | "land" | "commercial" | "office"
+    //type: "house" | "apartment" | "land" | "commercial" | "office"
+    type: "casa" | "departamento" | "parcela" | "sitio" | "oficina" | "comercial"
+    operation: "En Arriendo" | "En Venta"
     price: number // Price will be displayed in Chilean UF
     address: string
-    status: "available" | "sold" | "pending"
+    //status: "available" | "sold" | "pending"
+    status: "disponible" | "vendida" | "pendiente"
     dorms: number
     bathrooms: number
     parkingSpaces: number
@@ -53,8 +56,14 @@ const propertySchema : Schema = new Schema({
     },
     type: { 
         type: String, 
-        enum: ["house", "apartment", "land", "commercial", "office"], 
+        //enum: ["house", "apartment", "land", "commercial", "office"], 
+        enum: ["casa", "departamento", "parcela", "sitio", "oficina", "comercial"],
         required: true 
+    },
+    operation: {
+        type: String, 
+        enum: ["En Arriendo", "En Venta"], 
+        required: true
     },
     price: { 
         type: Number, 
@@ -69,8 +78,9 @@ const propertySchema : Schema = new Schema({
     },
     status: { 
         type: String, 
-        enum: ["available", "sold", "pending"], 
-        default: "available" 
+        //enum: ["available", "sold", "pending"], 
+        enum: ["disponible", "vendida", "pendiente"], 
+        default: "disponible" 
     },
     dorms: { 
         type: Number, 

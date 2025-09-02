@@ -66,6 +66,7 @@ export class PropertyController {
             const errors = property.validateSync();
             if (errors) {
                 res.status(400).json({ message: "Validation Error when Creating Property", errors})
+                console.log(errors)
                 return;
             }
 
