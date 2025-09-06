@@ -83,7 +83,7 @@ export class FeaturedController {
                 return
             }
 
-            res.status(200).json({ category, categoryId: id })
+            res.status(200).json({ category })
         } catch (error) {
             res.status(500).json({ message: "Internal Server Error" })
             console.error("Error when retrieving Category: ", error )
@@ -224,7 +224,7 @@ export class FeaturedController {
             const totalCategories = await Featured.countDocuments()
 
             // Get all registered Properties
-            const categoriesWithProperties = await Featured.find()
+            const categories = await Featured.find()
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 })
@@ -234,7 +234,7 @@ export class FeaturedController {
             const totalPages = Math.ceil(totalCategories / perPage)
 
             // Return a successful server response
-            res.status(200).json({ totalCategories, totalPages, currentPage: page, perPage, categoriesWithProperties})
+            res.status(200).json({ totalCategories, totalPages, currentPage: page, perPage, categories})
         } catch (error) {
             res.status(500).json({ message: "Internal Server Error" })
             console.error("Error when retrieving properties by Categories: ", error )
@@ -270,7 +270,7 @@ export class FeaturedController {
                 category,
                 ...(populateSuccess ? {} : { 
                     warning: "Las propiedades no pudieron ser cargadas" 
-                })
+                }), 
             };
 
             res.status(200).json(response);
@@ -281,7 +281,7 @@ export class FeaturedController {
     }
 
 
-    //^ Asign Property to category ✅
+    //^ Assign Property to category ✅
     static assignProperty = async (req: Request, res: Response) => {
         try {
             // Get the category id from url params
@@ -340,7 +340,7 @@ export class FeaturedController {
         }
     }
 
-    //^ Deasign Property from category ✅
+    //^ Deassign Property from category ✅
     static removeProperty = async (req: Request, res: Response) => {
         try {
             // Get the category id from url params
@@ -399,7 +399,7 @@ export class FeaturedController {
         }
     }
 
-    //^ Asign Multiple properties to single category ✅
+    //^ Assign Multiple properties to single category ✅
     static assignMultipleProperties = async (req: Request, res: Response) => {
         try {
             // Get the category id from url params
@@ -477,4 +477,79 @@ export class FeaturedController {
     }
 
     //TODO: Might add delete multiple properties bulk operation
+    static removeProperties = async (req: Request, res: Response) => {
+        try {
+            // Get the category id from the url params
+            const { id } = req.params; 
+
+            // Destructure the propertiesId from the body of the request
+            const { propertiesIds } = req.body; 
+
+            // Get properties by Id to validate it exists
+            const properties = await Property.find({
+                _id: { $in: propertiesIds } // $in returns all documents whose _id matches any in the list
+            })
+
+            // Check if all properties were found
+            if (properties.length !== propertiesIds.length) {
+                const foundIds = properties.map(p => p._id.toString());
+                const notFoundIds = propertiesIds.filter(id => !foundIds.includes(id));
+                
+                res.status(404).json({ 
+                    message: "Algunas propiedades no fueron encontradas",
+                    notFoundIds: notFoundIds
+                });
+
+                return;
+            }
+
+            // Check if category exists first
+            const category = await Featured.findById(id);
+            if (!category) {
+                res.status(404).json({ 
+                    message: "Categoría no encontrada" 
+                });
+
+                return
+            }
+
+            // Filter properties that are actually assigned to this category
+            const existingPropertyIds = category.properties.map(p => p.toString());
+            const propertiesToRemove = propertiesIds.filter(propId => 
+                existingPropertyIds.includes(propId)
+            );
+
+            // If no properties to remove
+            if (propertiesToRemove.length === 0) {
+                res.status(400).json({ 
+                    message: "Ninguna de las propiedades está asignada a esta categoría" 
+                });
+
+                return;
+            }
+
+            // Remove properties from category using $pull with $in
+            const updatedCategory = await Featured.findByIdAndUpdate(
+                id,
+                { $pull: { properties: { $in: propertiesToRemove } } }, // $pull removes multiple values
+                { new: true, runValidators: true }
+            ).populate('properties');
+
+            res.status(200).json({
+                message: `${propertiesToRemove.length} propiedades eliminadas correctamente`,
+                removedCount: propertiesToRemove.length,
+                skippedCount: propertiesIds.length - propertiesToRemove.length,
+                category: {
+                    id: updatedCategory._id,
+                    name: updatedCategory.name,
+                    slug: updatedCategory.slug,
+                    properties: updatedCategory.properties,
+                    isActive: updatedCategory.isActive
+                },
+            });
+        } catch (error) {
+            res.status(500).json({ message: "Internal Server Error" })
+            console.error("Error when removing property from Category: ", error )
+        }
+    }
 }

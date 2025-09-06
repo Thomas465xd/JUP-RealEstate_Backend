@@ -39,7 +39,7 @@ router.patch("/properties/:id",
     FeaturedController.assignProperty
 )
 
-//^ Deasign Property from category 
+//^ Deassign Property from category 
 router.delete("/properties/:id",
     param("id")
         .isMongoId().withMessage("ID de propiedad Inválido")
@@ -53,7 +53,7 @@ router.delete("/properties/:id",
     FeaturedController.removeProperty
 )
 
-//^ Asign Multiple properties to single category
+//^ Assign Multiple properties to single category
 router.patch("/properties/:id/bulk", 
     param("id")
         .notEmpty().withMessage("El ID de la categoría es obligatorio")
@@ -73,6 +73,28 @@ router.patch("/properties/:id/bulk",
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     handleInputErrors, 
     FeaturedController.assignMultipleProperties
+)
+
+//^ Deassign Multiple Properties from a single Category
+router.delete("/properties/:id/bulk", 
+    param("id")
+        .notEmpty().withMessage("El ID de la categoría es obligatorio")
+        .isMongoId().withMessage("ID de categoría inválido"),
+    // Validate body.propertiesIds (must be array of valid MongoIds)
+    body("propertiesIds")
+        .notEmpty().withMessage("Los ID's de las propiedades no pueden ir vacíos")
+        .isArray().withMessage("propertiesIds debe ser un arreglo")
+        .custom((arr) => {
+            if (!arr.every((id: string) => /^[0-9a-fA-F]{24}$/.test(id))) {
+                throw new Error("Todos los IDs de propiedades deben ser ObjectIds válidos");
+            }
+
+            return true;
+        }),
+    //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
+    //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
+    handleInputErrors, 
+    FeaturedController.removeProperties
 )
 
 //? Get all categories ✅
