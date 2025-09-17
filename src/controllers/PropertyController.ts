@@ -55,7 +55,28 @@ export class PropertyController {
             res.status(500).json({ message: "Could not Get Property" })
         }
     }
-    
+
+    //* Get a Property by Name
+    static getPropertiesByName = async (req: Request, res: Response) => {
+        try {
+            const { searchTerm } = req.params;
+
+            const properties = await Property.find({
+                title: { $regex: searchTerm, $options: "i" }, // no ^
+            });
+
+            // Check for empty array instead of null
+            if (properties.length === 0) {
+                res.status(404).json({ message: `No hay resultados para "${searchTerm}"` });
+                return
+            }
+
+            res.status(200).json({ properties });
+        } catch (error) {
+            res.status(500).json({ message: "Could not Get Property" });
+            return
+        }
+    };
     //^ Create a New Property | Required Admin Role ✅
     static createProperty = async (req: Request, res: Response) => {
         try {

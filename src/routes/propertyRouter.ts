@@ -20,11 +20,20 @@ router.get("/",
 /** Get a Property by it's ID (ObjectId) */
 router.get("/:id", 
     param("id")
-        .isMongoId().withMessage("ID de propiedad Inválido")
-        .notEmpty().withMessage("El ID de la propiedad es obligatorio"),
+    .isMongoId().withMessage("ID de propiedad Inválido")
+    .notEmpty().withMessage("El ID de la propiedad es obligatorio"),
     optionalAuth, 
     handleInputErrors,
     PropertyController.getPropertyById
+)
+
+/** Get properties by name */
+router.get("/name/:searchTerm", 
+    param("searchTerm")
+        .notEmpty().withMessage("El nombre de la propiedad es obligatorio"),
+    optionalAuth, 
+    handleInputErrors,
+    PropertyController.getPropertiesByName
 )
 
 /** Create Property */
