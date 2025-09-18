@@ -1,10 +1,12 @@
 import type { Request, Response } from "express";
 import Property from "../models/Property";
+import mongoose from "mongoose";
 
 
 //! Advanced Search Controller
 
 type searchFilters = {
+    _id?: mongoose.Types.ObjectId;
     status?: string,
     type?: string,
     operation?: string,
@@ -48,6 +50,33 @@ export class SearchController {
              * 
              * ?If no params are entered, then just return all the properties paginated
              */
+
+            //^ Search Code handling
+            const { searchCode } = req.query;
+
+            if (searchCode) {
+                if (!mongoose.Types.ObjectId.isValid(searchCode as string)) {
+                    res.status(400).json({ message: "Invalid searchCode format" });
+                    return
+                }
+
+                const property = await Property.findById(searchCode);
+
+                if (!property) {
+                    res.status(404).json({ message: "Property not found" });
+                    return
+                }
+
+                res.status(200).json({
+                    totalFilteredProperties: 1,
+                    totalPages: 1,
+                    currentPage: 1,
+                    perPage: 1,
+                    properties: [property],
+                });
+
+                return
+            }
 
             // Get the page and perPage query parameters (default values if not provided)
             const page = Math.max(parseInt(req.query.page as string) || 1, 1);

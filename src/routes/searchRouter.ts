@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { param } from "express-validator";
+import { query } from "express-validator";
 import { SearchController } from "../controllers/SearchController";
 import { handleInputErrors } from "../middleware/validation";
 import { requireAuth, requireAdmin, requireRoles, optionalAuth } from "../middleware/auth";
@@ -12,7 +12,10 @@ const router = Router();
 
 
 router.get("/",
-    param("status")
+    query("searchCode")
+        .isMongoId().withMessage("ID de propiedad Inválido")
+        .optional(),
+    query("status")
         .optional()
         .isIn([
             // "available", 
@@ -24,7 +27,7 @@ router.get("/",
             "pendiente"
         ])
         .withMessage("Estado de propiedad inválido"),
-    param("type")
+    query("type")
         .optional()
         .isIn([
             // "house", 
@@ -40,13 +43,13 @@ router.get("/",
             "oficina", 
             "comercial"
         ]).withMessage("Tipo de propiedad inválido"),
-    param("operation")
+    query("operation")
         .optional()
         .isIn([
             "En Arriendo", 
             "En Venta"
         ]).withMessage("Tipo de Operación inválida"),
-    param("region")    
+    query("region")    
         .optional()
         .isIn([
             "Arica y Parinacota",
@@ -67,36 +70,36 @@ router.get("/",
             "Magallanes"
         ])
         .withMessage("Área inválida"),
-    param("cityArea")
+    query("cityArea")
         .optional(), 
-    param("condo")
+    query("condo")
         .optional()
         .isBoolean()
         .withMessage("Especifique si es condominio o no"),
-    param("dorms")
+    query("dorms")
         .optional()
         .isInt({min: 0})
         .withMessage("La cantidad de dormitiorios no puede ser menor a cero"), 
-    param("bathrooms")
+    query("bathrooms")
         .optional().isInt({min: 0})
         .withMessage("La cantidad de baños no puede ser menor a cero"),  
-    param("parkingSpaces")
+    query("parkingSpaces")
         .optional()
         .isInt({min: 0})
         .withMessage("La cantidad de estacionamientos no puede ser menor a cero"), 
-    param("minPrice")
+    query("minPrice")
         .optional()
         .isInt({min: 0})
         .withMessage("El precio minimo no puede ser menor a cero"), 
-    param("maxPrice")
+    query("maxPrice")
         .optional()
         .isInt({min: 0})
         .withMessage("El Precio máximo no puede ser menor a cero"),
-    param("sortBy")
+    query("sortBy")
         .optional()
         .isIn(["price"])
         .withMessage("The sort criteria selected does not exist"),
-    param("sortOrder")
+    query("sortOrder")
         .optional()
         .isIn(["asc", "desc"])
         .withMessage("sort order must be either 'asc' or 'desc'"),
