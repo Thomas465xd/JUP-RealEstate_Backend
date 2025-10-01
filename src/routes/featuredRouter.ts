@@ -35,6 +35,8 @@ router.patch("/properties/:id",
         .isMongoId().withMessage("ID de propiedad Inválido"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
+    requireAuth,
+    requireAdmin,
     handleInputErrors, 
     FeaturedController.assignProperty
 )
@@ -49,6 +51,8 @@ router.delete("/properties/:id",
         .isMongoId().withMessage("ID de propiedad Inválido"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
+    requireAuth,
+    requireAdmin,
     handleInputErrors, 
     FeaturedController.removeProperty
 )
@@ -71,6 +75,8 @@ router.patch("/properties/:id/bulk",
         }),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
+    requireAuth,
+    requireAdmin,
     handleInputErrors, 
     FeaturedController.assignMultipleProperties
 )
@@ -93,6 +99,8 @@ router.delete("/properties/:id/bulk",
         }),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
+    requireAuth,
+    requireAdmin,
     handleInputErrors, 
     FeaturedController.removeProperties
 )
@@ -128,6 +136,8 @@ router.post("/",
         .withMessage("El Nombre de la Categoría es Obligatorio"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
+    requireAuth,
+    requireAdmin,
     handleInputErrors, 
     FeaturedController.createCategory
 )
@@ -147,6 +157,8 @@ router.patch("/:id",
         .withMessage("Especifique si la categoría esta activa o no"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
+    requireAuth,
+    requireAdmin,
     handleInputErrors, 
     FeaturedController.editCategory
 )
@@ -158,6 +170,8 @@ router.delete("/:id",
         .notEmpty().withMessage("El ID de la categoría es obligatorio"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
+    requireAuth,
+    requireAdmin,
     handleInputErrors, 
     FeaturedController.deleteCategory
 )

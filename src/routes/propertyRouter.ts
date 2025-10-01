@@ -112,6 +112,8 @@ router.post("/create",
         .withMessage("Todos los elementos deben ser URLs válidas"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
+    requireAuth,
+    requireAdmin,
     handleInputErrors,
     PropertyController.createProperty
 )
@@ -191,6 +193,8 @@ router.patch("/edit/:id",
         .optional().isBoolean().withMessage("Especifique si es condominio o no"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
+    requireAuth,
+    requireAdmin,
     handleInputErrors, 
     PropertyController.editProperty
 )
@@ -202,6 +206,8 @@ router.delete("/delete/:id",
         .notEmpty().withMessage("El ID de la propiedad es obligatorio"),
     //!requireAuth, turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
     //!requireAdmin,  turned off for development | UNCOMMENT WHEN READY FOR PRODUCTION
+    requireAuth,
+    requireAdmin,
     handleInputErrors,
     PropertyController.deleteProperty
 )
