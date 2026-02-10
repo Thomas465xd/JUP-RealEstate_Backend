@@ -380,7 +380,7 @@ To deploy your own instance:
 
 ### Production URL
 
-The production API is available at: **[Your Render URL]**
+The production API is available at your Render service URL (e.g., `https://your-service-name.onrender.com`)
 
 ---
 
