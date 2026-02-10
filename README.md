@@ -27,6 +27,7 @@
 - [Environment Variables](#-environment-variables)
 - [Usage](#-usage)
 - [Docker](#-docker)
+- [Deployment](#-deployment)
 - [License](#-license)
 
 ---
@@ -334,30 +335,52 @@ docker run -p 4000:4000 \
   jup-realestate-backend
 ```
 
-### Using Docker Compose
+---
 
-Create a `docker-compose.yml` file:
+## 🚀 Deployment
 
-```yaml
-version: '3.8'
-services:
-  backend:
-    build: .
-    ports:
-      - "4000:4000"
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - CLERK_PUBLISHABLE_KEY=${CLERK_PUBLISHABLE_KEY}
-      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
-      - RESEND_API_KEY=${RESEND_API_KEY}
-    env_file:
-      - .env
-```
+This application is deployed on **[Render](https://render.com/)**, a modern cloud platform that provides seamless deployment for web services.
 
-Then run:
-```bash
-docker-compose up
-```
+### Render Deployment Features
+
+- **Automatic Deployments**: Connected to the GitHub repository for automatic builds on push
+- **Environment Variables**: Securely configured through Render's dashboard
+- **Managed Database**: MongoDB Atlas integration for production database
+- **SSL Certificates**: Automatic HTTPS with free SSL certificates
+- **Health Checks**: Automatic service health monitoring
+- **Zero Downtime**: Rolling deployments ensure continuous availability
+
+### Deployment Configuration
+
+The application is configured for Render deployment with:
+
+1. **Build Command**: `npm install && npm run build`
+2. **Start Command**: `node dist/index.js`
+3. **Environment**: Node.js 20
+4. **Health Check Path**: `/api/properties` (returns 200 for healthy service)
+
+### Setting Up on Render
+
+To deploy your own instance:
+
+1. **Create a new Web Service** on Render
+2. **Connect your GitHub repository**
+3. **Configure the service**:
+   - **Name**: `jup-realestate-backend`
+   - **Environment**: Node
+   - **Build Command**: `npm install && npm run build`
+   - **Start Command**: `node dist/index.js`
+4. **Add Environment Variables**:
+   - `DATABASE_URL`
+   - `CLERK_PUBLISHABLE_KEY`
+   - `CLERK_SECRET_KEY`
+   - `RESEND_API_KEY`
+   - `FRONTEND_URL` (optional)
+5. **Deploy**: Render will automatically build and deploy your application
+
+### Production URL
+
+The production API is available at: **[Your Render URL]**
 
 ---
 
